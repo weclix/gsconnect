@@ -166,13 +166,14 @@ const ConnectDialog = GObject.registerClass({
     ],
     Signals: {
         'response': {
-            param_types: [GObject.TYPE_OBJECT, GObject.TYPE_INT],
+            param_types: [GObject.TYPE_INT],
         },
     },
 }, class ConnectDialog extends Adw.Dialog {
 
-    _init() {
+    _init(params = {}) {
         super._init();
+        Object.assign(this, params);
         this.set_title = _('Connect to...');
         this.connect('destroy', () => {
             this.response = Gtk.ResponseType.CANCEL;
@@ -212,7 +213,7 @@ const ConnectDialog = GObject.registerClass({
 
 
         try {
-            return GLib.InetAddress.new_from_string(host) !== null;
+            return Gio.InetAddress.new_from_string(host) !== null;
         } catch {
             return false;
         }
@@ -475,7 +476,7 @@ export const Window = GObject.registerClass({
      */
     _connectDialog() {
         if (this._dialog === undefined)
-            this._dialog = new ConnectDialog();
+            this._dialog = new ConnectDialog({application: this.application});
         this._dialog.present(this);
     }
 
