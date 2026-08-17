@@ -281,6 +281,12 @@ describe('The notification plugin', function () {
     });
 
     describe('suppresses duplicate re-sends', function () {
+        beforeEach(function () {
+            // Simulate a just-reconnected device so the suppression
+            // burst window is active
+            remotePlugin._lastConnectedAt = Date.now();
+        });
+
         it('shows a notification only once when re-sent identically',
             async function () {
                 const packet = {
@@ -308,6 +314,24 @@ describe('The notification plugin', function () {
                 expect(remotePlugin.device.showNotification.calls.count()).toBe(1);
 
                 packet.body = {...Notifications.withoutIcon, text: 'Changed Body'};
+
+                await remotePlugin._receiveNotification(packet);
+                expect(remotePlugin.device.showNotification.calls.count()).toBe(2);
+            });
+
+        it('does not suppress re-sends outside the reconnection burst',
+            async function () {
+                const packet = {
+                    type: 'kdeconnect.notification',
+                    body: Notifications.withoutIcon,
+                };
+
+                await remotePlugin._receiveNotification(packet);
+                expect(remotePlugin.device.showNotification.calls.count()).toBe(1);
+
+                // The burst window has elapsed; the same notification is a
+                // new event now and must be shown again
+                remotePlugin._lastConnectedAt = Date.now() - (60 * 1000 + 1000);
 
                 await remotePlugin._receiveNotification(packet);
                 expect(remotePlugin.device.showNotification.calls.count()).toBe(2);

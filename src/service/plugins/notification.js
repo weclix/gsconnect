@@ -137,6 +137,12 @@ function _isSmsNotification(packet) {
 const RECENT_NOTIFICATION_TTL = 30 * 60 * 1000;
 const RECENT_NOTIFICATION_MAX = 200;
 
+// Only suppress duplicate re-sends which arrive shortly after a device
+// (re)connection; the remote service re-sends its full notification list
+// as part of the reconnection handshake. Notifications re-posted while
+// the connection is stable are considered new and are never suppressed.
+const RECENT_NOTIFICATION_BURST_WINDOW = 60 * 1000;
+
 
 /**
  * Remove a local libnotify or Gtk notification.
@@ -203,10 +209,13 @@ const NotificationPlugin = GObject.registerClass({
         this._applicationsChangedSkip = false;
 
         this._recentNotifications = new Map();
+        this._lastConnectedAt = 0;
     }
 
     connected() {
         super.connected();
+
+        this._lastConnectedAt = Date.now();
 
         this._requestNotifications();
     }
@@ -553,7 +562,9 @@ const NotificationPlugin = GObject.registerClass({
 
         // A duplicate re-send; refresh the timestamp so the suppression
         // window continues to cover the remote device's reconnect cadence
-        if (timestamp !== undefined && now - timestamp <= RECENT_NOTIFICATION_TTL) {
+        if (timestamp !== undefined &&
+            now - timestamp <= RECENT_NOTIFICATION_TTL &&
+            now - this._lastConnectedAt <= RECENT_NOTIFICATION_BURST_WINDOW) {
             this._recentNotifications.set(key, now);
             debug(`Suppressing duplicate notification: ${body.appName}: ${body.title}`);
             return true;
