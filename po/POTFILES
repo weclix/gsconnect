@@ -55,4 +55,3 @@ src/service/ui/mousepad.js
 src/service/ui/service.js
 src/shell/device.js
 src/shell/notification.js
-webextension/gettext.js

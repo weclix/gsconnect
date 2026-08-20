@@ -28,9 +28,3 @@ indent_size = 2
 [*.json]
 indent_style = space
 indent_size = 2
-
-# WebExtension templates: 4-space indents
-[data/webextension/*.in]
-indent_style = space
-indent_size = 4
-

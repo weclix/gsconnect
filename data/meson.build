@@ -4,8 +4,6 @@
 
 subdir('firewalld')
 subdir('metainfo')
-subdir('webextension')
-
 
 # metadata.json
 configure_file(
@@ -104,4 +102,3 @@ gnome.compile_resources(
     dbus_service_file
   ]
 )
-

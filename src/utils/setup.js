@@ -127,7 +127,6 @@ export function ensurePermissions() {
         const executableFiles = [
             'gsconnect-preferences',
             'service/daemon.js',
-            'service/nativeMessagingHost.js',
         ];
         for (const file of executableFiles)
             _setExecutable(GLib.build_filenamev([Config.PACKAGE_DATADIR, file]));
@@ -138,17 +137,7 @@ export function ensurePermissions() {
  * Install the files necessary for the GSConnect service to run.
  */
 export function installService() {
-    const settings = new Gio.Settings({
-        settings_schema: Config.GSCHEMA.lookup(
-            'org.gnome.Shell.Extensions.GSConnect',
-            null
-        ),
-        path: '/org/gnome/shell/extensions/gsconnect/',
-    });
-
-    const confDir = GLib.get_user_config_dir();
     const dataDir = GLib.get_user_data_dir();
-    const homeDir = GLib.get_home_dir();
 
     // DBus Service
     const dbusDir = GLib.build_filenamev([dataDir, 'dbus-1', 'services']);
@@ -170,31 +159,8 @@ export function installService() {
         [`${dataDir}/nemo-python/extensions`, 'nemo-gsconnect.py'],
     ];
 
-    // WebExtension Manifests
-    const manifestFile = 'org.gnome.shell.extensions.gsconnect.json';
-    const google = getResource(`webextension/${manifestFile}.google.in`);
-    const mozilla = getResource(`webextension/${manifestFile}.mozilla.in`);
-
-    // Use $HOME/.mozilla if it already exists
-    const mozillaConfigFolder = GLib.file_test(`${homeDir}/.mozilla`, GLib.FileTest.EXISTS)
-        ? `${homeDir}/.mozilla`
-        : `${confDir}/mozilla`;
-
-    const manifests = [
-        [`${confDir}/chromium/NativeMessagingHosts/`, google],
-        [`${confDir}/google-chrome/NativeMessagingHosts/`, google],
-        [`${confDir}/google-chrome-beta/NativeMessagingHosts/`, google],
-        [`${confDir}/google-chrome-unstable/NativeMessagingHosts/`, google],
-        [`${confDir}/BraveSoftware/Brave-Browser/NativeMessagingHosts/`, google],
-        [`${confDir}/BraveSoftware/Brave-Browser-Beta/NativeMessagingHosts/`, google],
-        [`${confDir}/BraveSoftware/Brave-Browser-Nightly/NativeMessagingHosts/`, google],
-        [`${mozillaConfigFolder}/native-messaging-hosts/`, mozilla],
-        [`${homeDir}/.config/microsoft-edge-dev/NativeMessagingHosts`, google],
-        [`${homeDir}/.config/microsoft-edge-beta/NativeMessagingHosts`, google],
-    ];
-
     // If running as a user extension, ensure the DBus service, desktop entry,
-    // file manager scripts, and WebExtension manifests are installed.
+    // file manager scripts are installed.
     if (Config.IS_USER) {
         // DBus Service
         if (!_installResource(dbusDir, dbusFile, `${dbusFile}.in`))
@@ -220,12 +186,6 @@ export function installService() {
             }
         }
 
-        // WebExtension Manifests
-        if (settings.get_boolean('create-native-messaging-hosts')) {
-            for (const [dirname, contents] of manifests)
-                _installFile(dirname, manifestFile, contents);
-        }
-
         // Otherwise, if running as a system extension,
         // ensure anything previously installed when running as a user
         // extension is removed.
@@ -238,9 +198,6 @@ export function installService() {
 
         for (const [dir, name] of fileManagers)
             GLib.unlink(GLib.build_filenamev([dir, name]));
-
-        for (const manifest of manifests)
-            GLib.unlink(GLib.build_filenamev([manifest[0], manifestFile]));
     }
 }
 

@@ -14,14 +14,11 @@ export default defineConfig([
         '**/*.js',
 	'!src/**/*.js',
 	'!installed-tests/**/*.js',
-	'!webextension/**/*.js',
-	'webextension/js/browser-polyfill*',
     ]),
     {
 	files: [
 	    'src/**/*.js',
 	    'installed-tests/**/*.js',
-	    'webextension/**/*.js',
 	],
         plugins: {
             '@stylistic': stylistic,
@@ -257,20 +254,6 @@ export default defineConfig([
             yoda: 'error',
 
             'jsdoc/tag-lines': ['error', 'any', {'startLines': 1}],
-        },
-    },
-    {
-        files: ['webextension/js/*.js'],
-        languageOptions: {
-            globals: {
-                ...globals.browser,
-                ...globals.webextensions,
-            },
-        },
-        rules: {
-            'no-console': ['error', {
-                allow: ['warn', 'error'],
-            }],
         },
     },
     {

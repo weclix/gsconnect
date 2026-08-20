@@ -456,9 +456,8 @@ const SMSPlugin = GObject.registerClass({
     }
 
     /**
-     * Share a text content by SMS message. This is used by the WebExtension to
-     * share URLs from the browser, but could be used to initiate sharing of any
-     * text content.
+     * Share a text content by SMS message. This can be used to initiate sharing
+     * of any text content.
      *
      * @param {string} url - The link to be shared
      */

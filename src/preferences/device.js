@@ -600,9 +600,22 @@ export const DeviceNavigationPage = GObject.registerClass({
         return row1.title.localeCompare(row2.title);
     }
 
+    _storeCommands() {
+        const variant = {};
+
+        for (const [uuid, command] of Object.entries(this._commands))
+            variant[uuid] = new GLib.Variant('a{ss}', command);
+
+        this.pluginSettings('runcommand').set_value(
+            'command-list',
+            new GLib.Variant('a{sv}', variant)
+        );
+    }
+
     _onDeleteCommand(button) {
         const row = button.get_ancestor(Gtk.ListBoxRow.$gtype);
         delete this._commands[row.command_name];
+        row.destroy();
         this._storeCommands();
     }
 
@@ -620,7 +633,7 @@ export const DeviceNavigationPage = GObject.registerClass({
     _onEditCommand(widget) {
         if (this._commandEditor === undefined) {
             this._commandEditor = new CommandEditor();
-            this._commandEditor.connect('response', this._onSaveCommand);
+            this._commandEditor.connect('response', this._onSaveCommand.bind(this));
         }
 
         if (widget instanceof Gtk.Button) {

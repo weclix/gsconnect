@@ -44,11 +44,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <file compressed="true" preprocess="xml-stripblanks">org.gnome.Shell.Extensions.GSConnect.xml</file>
     <file compressed="true" preprocess="xml-stripblanks">org.gnome.Shell.Extensions.GSConnect.sdp.xml</file>
 
-    <!-- WebExtension Manifests & Badges -->
-    <file compressed="true">webextension/org.gnome.shell.extensions.gsconnect.json.google.in</file>
-    <file compressed="true">webextension/org.gnome.shell.extensions.gsconnect.json.mozilla.in</file>
-    <file compressed="true">images/chrome-badge.png</file>
-    <file compressed="true">images/firefox-badge.png</file>
   </gresource>
   <!-- Icon Theme -->
   <gresource prefix="/org/gnome/Shell/Extensions/GSConnect/icons/scalable/apps">

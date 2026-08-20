@@ -122,10 +122,6 @@ if eslint.found()
     args: join_paths(meson.project_source_root(), 'installed-tests'),
     suite: 'lint',
   )
-  test('ESLint (WebExtension)', eslint,
-    args: join_paths(meson.project_source_root(), 'webextension'),
-    suite: 'lint',
-  )
 endif
 
 black = find_program('black', required: false)
@@ -153,4 +149,3 @@ subdir('data')
 subdir('installed-tests')
 subdir('nautilus-extension')
 subdir('po')
-
